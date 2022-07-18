@@ -1,18 +1,24 @@
-name: API workflow
-
+# GitHub Actions - CI for Go to build & test.  See ci-go-cover.yml and linters.yml for code coverage and linters.
+# Taken from: https://github.com/fxamacker/cbor/workflows/ci.yml (thanks!)
+name: ci
 on: [push, pull_request]
-
 jobs:
-  build:
+
+  # Test on various OS with default Go version. 
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: [1.17.x, 1.18.x]
     runs-on: ubuntu-latest
-    name: Test API
     steps:
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v3
+    - name: Install Go
+      uses: actions/setup-go@v2
       with:
-        # token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-        # files: ./coverage1.xml,./coverage2.xml # optional
-        # flags: unittests # optional
-        # name: codecov-umbrella # optional
-        # fail_ci_if_error: true # optional (default = false)
-        verbose: true # optional (default = false)
+        go-version: ${{ matrix.go-version }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Run tests
+      run: go test -race -v -coverprofile=coverage.txt .
+    - name: Upload coverage to codecov.io
+      uses: codecov/codecov-action@v3
