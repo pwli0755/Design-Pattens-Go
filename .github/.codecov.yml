@@ -4,4 +4,5 @@ coverage:
       default:
         target: 0%
     patch:
-      default: 0%
+      default:
+        target: 0%
